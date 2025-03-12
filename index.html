@@ -7,33 +7,42 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
 </head>
 <body>
-    <h2>Python Web App</h2>
+    <h2>Python Web App 1</h2>
     <input type="text" id="userInput" placeholder="Enter your name">
     <button onclick="runPython()">Submit</button>
     <p id="output"></p>
 
     <script>
-        let pyodideReady = null;
+        let pyodide = null;
 
+        // Load Pyodide once the page is fully loaded
         async function loadPyodideAndInitialize() {
-            window.pyodide = await loadPyodide();
-            pyodideReady = true;
+            pyodide = await loadPyodide();
+            console.log("Pyodide loaded successfully.");
         }
 
         async function runPython() {
-            if (!pyodideReady) {
-                document.getElementById("output").innerText = "Loading Python... Please wait.";
+            if (!pyodide) {
+                document.getElementById("output").innerText = "Python is still loading. Please wait...";
                 return;
             }
 
-            let name = document.getElementById("userInput").value;
-            let code = `name = "${name}"\n"Hi " + name`;
+            let name = document.getElementById("userInput").value.trim();
+
+            if (name === "") {
+                document.getElementById("output").innerText = "Please enter a name!";
+                return;
+            }
 
             try {
-                let result = await pyodide.runPythonAsync(code);
+                let result = await pyodide.runPythonAsync(`
+                    name = "${name}"
+                    "Hi " + name
+                `);
                 document.getElementById("output").innerText = result;
             } catch (error) {
-                document.getElementById("output").innerText = "Error: " + error;
+                document.getElementById("output").innerText = "Error: " + error.message;
+                console.error(error);
             }
         }
 
